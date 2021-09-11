@@ -58,7 +58,7 @@ function! s:copy_to_clipboard(url)
   endif
 endfunction
 
-function! ToGithub(blob_or_blame, count, line1, line2, ...)
+function! ToGithub(blob_or_blame, develop_or_commithash, count, line1, line2, ...)
   let github_url = 'https://github.com'
   let get_remote = 'git remote -v | grep -E "github\.com.*\(fetch\)" | tail -n 1'
   let get_username = 'sed -E "s/.*com[:\/](.*)\/.*/\\1/"'
@@ -80,7 +80,12 @@ function! ToGithub(blob_or_blame, count, line1, line2, ...)
   endif
 
   " Get the commit and path, and form the complete url.
-  let commit = s:run('git rev-parse HEAD')
+  if develop_or_commithash == 'develop'
+    let s:commit = 'develop'
+  else
+    let s:commit = s:run('git rev-parse HEAD')
+  endif
+
   let repo_root = s:run('git rev-parse --show-toplevel')
   let file_path = expand('%:p')
   let file_path = substitute(file_path, repo_root . '/', '', 'e')
@@ -100,5 +105,7 @@ function! ToGithub(blob_or_blame, count, line1, line2, ...)
   endif
 endfunction
 
-command! -nargs=* -range ToGithubBlob :call ToGithub('blob', <count>, <line1>, <line2>, <f-args>)
-command! -nargs=* -range ToGithubBlame :call ToGithub('blame', <count>, <line1>, <line2>, <f-args>)
+command! -nargs=* -range ToGithubBlobDevelopBranch :call ToGithub('blob', 'develop', <count>, <line1>, <line2>, <f-args>)
+command! -nargs=* -range ToGithubBlameDevelopBranch :call ToGithub('blame', 'develop', <count>, <line1>, <line2>, <f-args>)
+command! -nargs=* -range ToGithubBlobCommitHash :call ToGithub('blob', 'commit', <count>, <line1>, <line2>, <f-args>)
+command! -nargs=* -range ToGithubBlameCommitHash :call ToGithub('blame', 'commit', <count>, <line1>, <line2>, <f-args>)
