@@ -81,15 +81,15 @@ function! ToGithub(blob_or_blame, develop_or_commithash, count, line1, line2, ..
 
   " Get the commit and path, and form the complete url.
   if develop_or_commithash == 'develop'
-    let s:commit = 'develop'
+    let a:commit = 'develop'
   else
-    let s:commit = s:run('git rev-parse HEAD')
+    let a:commit = s:run('git rev-parse HEAD')
   endif
 
   let repo_root = s:run('git rev-parse --show-toplevel')
   let file_path = expand('%:p')
   let file_path = substitute(file_path, repo_root . '/', '', 'e')
-  let url = join([github_url, username, repo, a:blob_or_blame, commit, file_path], '/')
+  let url = join([github_url, username, repo, a:blob_or_blame, a:commit, file_path], '/')
 
   " Finally set the line numbers if necessary.
   if a:count == -1
