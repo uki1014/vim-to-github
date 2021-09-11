@@ -81,7 +81,7 @@ function! ToGithub(blob_or_blame, develop_or_commithash, count, line1, line2, ..
 
   " Get the commit and path, and form the complete url.
   if a:develop_or_commithash == 'develop'
-    let l:commit = 'develop'
+    let l:commit = s:run("git branch -r --points-at refs/remotes/origin/HEAD | grep 'origin/HEAD' | awk '{print $3}' | sed -r -n 's/origin\\///p'")
   else
     let l:commit = s:run('git rev-parse HEAD')
   endif
