@@ -49,13 +49,14 @@ function! s:run(...)
 endfunction
 
 function! s:copy_to_clipboard(url)
-  if exists('g:to_github_clip_command')
-    call system(g:to_github_clip_command, a:url)
-  elseif has('unix') && !has('xterm_clipboard')
-    let @" = a:url
-  else
-    let @+ = a:url
-  endif
+  " if exists('g:to_github_clip_command')
+  "   call system(g:to_github_clip_command, a:url)
+  " elseif has('unix') && !has('xterm_clipboard')
+  "   let @" = a:url
+  " else
+  echo a:url
+  let @+ = a:url
+  " endif
 endfunction
 
 function! ToGithub(blob_or_blame, develop_or_commithash, count, line1, line2, ...)
@@ -98,7 +99,7 @@ function! ToGithub(blob_or_blame, develop_or_commithash, count, line1, line2, ..
     let line = '#L' . a:line1 . '-L' . a:line2
   endif
 
-  if get(g:, 'to_github_clipboard', 0)
+  if g:to_github_clipboard == 1
     return s:copy_to_clipboard(url . line)
   else
     return s:open_browser(url . line)
