@@ -106,6 +106,18 @@ function! ToGithub(blob_or_blame, develop_or_commithash, count, line1, line2, ..
   endif
 endfunction
 
+function! ToGithubTargetPullRequest()
+  let current_path = expand("%")
+  let current_line = '-L' . line('.') . ',' . line('.')
+  let command = join(['git blame', current_line, current_path], ' ')
+  let current_line_blame_info = s:run(command)
+  let current_line_commit_hash = split(l:current_line_blame_info, ' ')[0]
+  let pr_url = system('getpr ' . l:current_line_commit_hash)
+  echo l:pr_url
+  let @+ = l:pr_url
+endfunction
+
+command! -nargs=* -range ToGithubTargetPullRequest :call ToGithubTargetPullRequest()
 command! -nargs=* -range ToGithubBlobDevelopBranch :call ToGithub('blob', 'develop', <count>, <line1>, <line2>, <f-args>)
 command! -nargs=* -range ToGithubBlameDevelopBranch :call ToGithub('blame', 'develop', <count>, <line1>, <line2>, <f-args>)
 command! -nargs=* -range ToGithubBlobCommitHash :call ToGithub('blob', 'commit', <count>, <line1>, <line2>, <f-args>)
