@@ -112,7 +112,7 @@ function! ToGithubTargetPullRequest()
   let command = join(['git blame', current_line, current_path], ' ')
   let current_line_blame_info = s:run(command)
   let current_line_commit_hash = split(l:current_line_blame_info, ' ')[0]
-  let pr_url = system('getpr ' . l:current_line_commit_hash)
+  let pr_url = s:run('getpr ' . l:current_line_commit_hash)
   echo l:pr_url
   let @+ = l:pr_url
 endfunction
