@@ -117,7 +117,29 @@ function! ToGithubTargetPullRequest()
   let @+ = l:pr_url
 endfunction
 
+function! ToGithubTargetPullRequestFromCommitHash()
+  let github_url = 'https://github.com'
+  let get_remote = 'git remote -v | grep -E "github\.com.*\(fetch\)" | tail -n 1'
+  let get_username = 'sed -E "s/.*com[:\/](.*)\/.*/\\1/"'
+  let get_repo = 'sed -E "s/.*com[:\/].*\/(.*).*/\\1/" | cut -d " " -f 1'
+  let optional_ext = 'sed -E "s/\.git//"'
+  let username = s:run(get_remote, get_username)
+  let repo = s:run(get_remote, get_repo, optional_ext)
+
+  let current_path = expand("%")
+  let current_line = '-L' . line('.') . ',' . line('.')
+  let command = join(['git blame', current_line, current_path], ' ')
+  let current_line_blame_info = s:run(command)
+  let current_line_commit_hash = split(l:current_line_blame_info, ' ')[0]
+  let command_to_get_pr_number = join(['git log --merges --oneline --reverse --ancestry-path', l:current_line_commit_hash . '...develop'])
+  let pr_number = s:run(command_to_get_pr_number, 'grep -o "#[0-9]*" -m 1', 'sed s/#//g')
+  let pr_url = join([l:github_url, l:username, l:repo, 'pull', l:pr_number], '/')
+  echo l:pr_url
+  let @+ = l:pr_url
+endfunction
+
 command! -nargs=* -range ToGithubTargetPullRequest :call ToGithubTargetPullRequest()
+command! -nargs=* -range ToGithubTargetPullRequestFromCommitHash :call ToGithubTargetPullRequestFromCommitHash()
 command! -nargs=* -range ToGithubBlobDevelopBranch :call ToGithub('blob', 'develop', <count>, <line1>, <line2>, <f-args>)
 command! -nargs=* -range ToGithubBlameDevelopBranch :call ToGithub('blame', 'develop', <count>, <line1>, <line2>, <f-args>)
 command! -nargs=* -range ToGithubBlobCommitHash :call ToGithub('blob', 'commit', <count>, <line1>, <line2>, <f-args>)
